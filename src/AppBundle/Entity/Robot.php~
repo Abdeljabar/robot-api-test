@@ -2,7 +2,6 @@
 
 namespace AppBundle\Entity;
 
-use AppBundle\Entity\Type;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -131,28 +130,5 @@ class Robot
     {
         return $this->year;
     }
-
-    /**
-     * Set type
-     *
-     * @param Type $type
-     *
-     * @return Robot
-     */
-    public function setType(Type $type = null)
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
-    /**
-     * Get type
-     *
-     * @return Type
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
 }
+
