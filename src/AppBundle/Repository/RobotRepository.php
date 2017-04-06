@@ -50,7 +50,7 @@ class RobotRepository extends \Doctrine\ORM\EntityRepository
 
         $query = "SELECT r FROM AppBundle:Robot r ";
         $query .= " $typeJoin ";
-        $query .= " WHERE ";
+        if (count($params)>0) $query .= " WHERE ";
         $query .= " $statusCondition ";
         if (count($params)>1) $query .= " AND ";
         $query .= " $typeCondition ";

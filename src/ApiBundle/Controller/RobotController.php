@@ -132,6 +132,7 @@ class RobotController extends Controller
     /**
      * @Route("/search", name="api_robots_search")
      * @Method("GET")
+     * @param Request $request
      * @return JsonResponse
      */
     public function searchAction(Request $request) {
@@ -196,12 +197,51 @@ class RobotController extends Controller
     }
 
     /**
-     * @Route("/filter/{filter}", name="api_robots_filter")
-     * @Method("GET")
+     * @Route("/", name="api_robots_new")
+     * @Method("POST")
+     * @param Request $request
      */
-    public function filterAction($filter) {
-        // Filter by Type & Status
-        // Url filtered by status: api/robots/filter/status/[STATUS]
-        // Url filtered by type api/robots/filter/type/[TYPE]
+    public function newAction(Request $request) {
+        $em = $this->getDoctrine()->getManager();
+
+        $robotName = $request->get('robot_name');
+        $robotType = $em->getRepository('AppBundle:Type')->find($request->get('robot_type'));
+        $robotStatus = $request->get('robot_status');
+        $robotYear = $request->get('robot_year');
+
+        $robot = new Robot();
+        $robot->setName($robotName)
+            ->setStatus($robotStatus)
+            ->setType($robotType)
+            ->setYear($robotYear);
+
+
+        $em->persist($robot);
+        $em->flush();
+
+        if ($robot->getId()) {
+            $response = [
+                'status'    => 1,
+                'data'      => [
+                    'name'      => $robot->getName(),
+                    'status'    => $robot->getStatus(),
+                    'year'      => $robot->getYear(),
+                    'uri'       => $this->generateUrl('api_robots_show', array('robot' => $robot->getId())),
+                    'type'      => [
+                        'id'    => $robot->getType()->getId(),
+                        'name'  => $robot->getType()->getName(),
+                    ]
+                ]
+            ];
+            $code = 201;
+        } else {
+            $response = [
+                'status'    => 0,
+                'message'   => 'Could not create a new robot.'
+            ];
+            $code = 400;
+        }
+
+        return new JsonResponse($response, $code);
     }
 }
