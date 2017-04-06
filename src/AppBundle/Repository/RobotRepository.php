@@ -10,4 +10,57 @@ namespace AppBundle\Repository;
  */
 class RobotRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function findByNameUnique($name) {
+        return $this->getEntityManager()
+            ->createQuery(
+                'SELECT r FROM AppBundle:Robot r WHERE r.name=:name'
+            )
+            ->setParameter('name', $name)
+            ->setMaxResults(1)
+            ->getOneOrNullResult();
+    }
+    public function searchByName($name) {
+        return $this->getEntityManager()
+            ->createQuery(
+                'SELECT r FROM AppBundle:Robot r WHERE r.name LIKE :name'
+            )
+            ->setParameter('name', "%$name%")
+            ->getResult();
+    }
+
+    public function findByParams($status=null, $type=null)
+    {
+        $params = [];
+
+        if (!empty($status)) {
+            $statusCondition = " r.status=:status ";
+            $params['status'] = $status;
+        } else {
+            $statusCondition = "";
+        }
+
+        if (!empty($type)) {
+            $typeCondition  = " t.name=:type ";
+            $typeJoin       = " JOIN AppBundle:Type t WITH t.id=r.type";
+            $params['type'] = $type;
+        } else {
+            $typeCondition  = "";
+            $typeJoin      = "";
+        }
+
+        $query = "SELECT r FROM AppBundle:Robot r ";
+        $query .= " $typeJoin ";
+        $query .= " WHERE ";
+        $query .= " $statusCondition ";
+        if (count($params)>1) $query .= " AND ";
+        $query .= " $typeCondition ";
+
+        $result = $this->getEntityManager()
+            ->createQuery($query)
+            ->setParameters($params)
+            ->getResult();
+
+        return $result;
+
+    }
 }
