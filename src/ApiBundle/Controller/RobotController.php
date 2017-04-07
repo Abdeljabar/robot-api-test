@@ -200,6 +200,7 @@ class RobotController extends Controller
      * @Route("/", name="api_robots_new")
      * @Method("POST")
      * @param Request $request
+     * @return JsonResponse
      */
     public function newAction(Request $request) {
         $em = $this->getDoctrine()->getManager();
@@ -238,6 +239,93 @@ class RobotController extends Controller
             $response = [
                 'status'    => 0,
                 'message'   => 'Could not create a new robot.'
+            ];
+            $code = 400;
+        }
+
+        return new JsonResponse($response, $code);
+    }
+
+    /**
+     * @Route("/{robot}", name="api_robots_edit")
+     * @Method("PUT")
+     * @param Request $request
+     * @param Robot $robot
+     * @return JsonResponse
+     */
+    public function editAction(Request $request, Robot $robot) {
+        $em = $this->getDoctrine()->getManager();
+
+        if (!empty($request->get('robot_name'))) {
+            $robotName = $request->get('robot_name');
+            $robot->setName($robotName);
+        }
+
+        if (!empty($request->get('robot_type'))) {
+            $robotType = $em->getRepository('AppBundle:Type')->find($request->get('robot_type'));
+            $robot->setType($robotType);
+        }
+
+        if ($request->get('robot_status')) {
+            $robotStatus = $request->get('robot_status');
+            $robot->setStatus($robotStatus);
+        }
+        if ($request->get('robot_year')) {
+            $robotYear = $request->get('robot_year');
+            $robot->setYear($robotYear);
+        }
+
+        $em->persist($robot);
+        $em->flush();
+
+        if ($robot->getId()) {
+            $response = [
+                'status'    => 1,
+                'data'      => [
+                    'name'      => $robot->getName(),
+                    'status'    => $robot->getStatus(),
+                    'year'      => $robot->getYear(),
+                    'uri'       => $this->generateUrl('api_robots_show', array('robot' => $robot->getId())),
+                    'type'      => [
+                        'id'    => $robot->getType()->getId(),
+                        'name'  => $robot->getType()->getName(),
+                    ]
+                ]
+            ];
+            $code = 200;
+        } else {
+            $response = [
+                'status'    => 0,
+                'message'   => 'Could not create a new robot.'
+            ];
+            $code = 400;
+        }
+
+        return new JsonResponse($response, $code);
+    }
+
+    /**
+     * @Route("/{robot}", name="api_robots_delete")
+     * @Method("DELETE")
+     * @param Robot $robot
+     * @return JsonResponse
+     */
+    public function deleteAction(Robot $robot) {
+        $em = $this->getDoctrine()->getManager();
+
+        $em->remove($robot);
+        $em->flush();
+
+        if (!$robot->getId()) {
+            $response = [
+                'status'    => 1,
+                'message'   => 'Robot deleted.'
+            ];
+            $code = 200;
+        } else {
+            $response = [
+                'status'    => 0,
+                'message'   => 'Could not delete robot.'
             ];
             $code = 400;
         }
