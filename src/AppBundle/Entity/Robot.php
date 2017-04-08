@@ -4,12 +4,15 @@ namespace AppBundle\Entity;
 
 use AppBundle\Entity\Type;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * Robot
  *
  * @ORM\Table(name="robots")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\RobotRepository")
+ * @UniqueEntity("name")
  */
 class Robot
 {
@@ -26,6 +29,7 @@ class Robot
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255, unique=true)
+     * @Assert\Length(min=3)
      */
     private $name;
 
@@ -33,6 +37,7 @@ class Robot
      * @var string
      *
      * @ORM\Column(name="status", type="string", length=255)
+     * @Assert\Length(min=3)
      */
     private $status;
 
@@ -40,12 +45,15 @@ class Robot
      * @var int
      *
      * @ORM\Column(name="year", type="integer")
+     * @Assert\Range(min=1900, max=3000)
+     *
      */
     private $year;
 
     /**
      * @ORM\ManyToOne(targetEntity="Type")
      * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
+     * @Assert\Valid
      */
     private $type;
 

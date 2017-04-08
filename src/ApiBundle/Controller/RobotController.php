@@ -26,8 +26,6 @@ class RobotController extends Controller
         // Initiate the Doctrine Entity Manager
         $em = $this->getDoctrine()->getManager();
 
-        $params = [];
-
         // Get all robots
         if (!empty($request->query->get('status')))
             $status = $request->query->get('status');
@@ -44,54 +42,52 @@ class RobotController extends Controller
         // Check if there is no problem with the Database
         if (null === $robots) {
             // Failure. Return a database query failure.
-            return new JsonResponse([
-               [
-                   'success' => 0,
-                   'message' => 'Database query failure.'
-               ]
-            ], 500);
-        }
-
-        // Initiate an empty array of resources
-        $data = [];
-
-        // Fill in the array by robots found
-        /** @var \AppBundle\Entity\Robot $robot */
-        foreach ($robots as $robot) {
-            $data[$robot->getId()] = [
-                'name'      => $robot->getName(),
-                'status'    => $robot->getStatus(),
-                'year'      => $robot->getYear(),
-                'uri'       => $this->generateUrl('api_robots_show', array('robot' => $robot->getId())),
-                'search'       => $this->generateUrl('api_robots_search', array('q' => $robot->getName())),
-                'type'      => [
-                    'id'    => $robot->getType()->getId(),
-                    'name'  => $robot->getType()->getName(),
-                ]
+            $response = [
+                'success' => 0,
+                'message' => 'Database query failure.'
             ];
-        }
-
-
-        if (!empty($data)) {
-            // Success. Found some robots.
-            return new JsonResponse(
-                [
-                    'success' => 1,
-                    'message' => 'Found some robots.',
-                    $data
-                ], 200
-            );
-
+            $code = 500;
         } else {
-            // Failure. Did not find any robots.
-            return new JsonResponse(
-                [
+            // Initiate an empty array of resources
+            $data = [];
+
+            // Fill in the array by robots found
+            /** @var \AppBundle\Entity\Robot $robot */
+            foreach ($robots as $robot) {
+                $data[$robot->getId()] = [
+                    'name'      => $robot->getName(),
+                    'status'    => $robot->getStatus(),
+                    'year'      => $robot->getYear(),
+                    'uri'       => $this->generateUrl('api_robots_show', array('robot' => $robot->getId())),
+                    'type'      => [
+                        'id'    => $robot->getType()->getId(),
+                        'name'  => $robot->getType()->getName(),
+                    ]
+                ];
+            }
+
+            if (!empty($data)) {
+                // Success. Found some robots.
+                $response =
+                    [
+                        'success' => 1,
+                        'message' => 'Found some robots.',
+                        $data
+                    ];
+                $code = 200;
+
+            } else {
+                // Failure. Did not find any robots.
+                $response = [
                     'success' => 0,
                     'message' => 'Did not find any robots.',
                     $data
-                ], 200
-            );
+                ];
+                $code = 200;
+            }
         }
+
+        return new JsonResponse($response, $code);
     }
 
     /**
@@ -110,22 +106,19 @@ class RobotController extends Controller
             ], 404);
         }
 
-        // Initiate an empty array of resources
-        $playload = [
-            'name'      => $robot->getName(),
-            'status'    => $robot->getStatus(),
-            'year'      => $robot->getYear(),
-            'uri'       => $this->generateUrl('api_robots_show', array('robot' => $robot->getId())),
-            'type'      => [
-                'id'    => $robot->getType()->getId(),
-                'name'  => $robot->getType()->getName(),
-            ]
-        ];
-
         return new JsonResponse([
             'success' => 1,
             'message' => 'Robot found.',
-            $playload
+            [
+                'name'      => $robot->getName(),
+                'status'    => $robot->getStatus(),
+                'year'      => $robot->getYear(),
+                'uri'       => $this->generateUrl('api_robots_show', array('robot' => $robot->getId())),
+                'type'      => [
+                    'id'    => $robot->getType()->getId(),
+                    'name'  => $robot->getType()->getName(),
+                ]
+            ]
         ], 200);
     }
 
@@ -147,53 +140,56 @@ class RobotController extends Controller
         // Check if there is no problem with the Database
         if (null === $robots) {
             // Failure. Return a database query failure.
-            return new JsonResponse([
+           $response = [
                 [
                     'success' => 0,
                     'message' => 'Database query failure.'
                 ]
-            ], 500);
-        }
-
-        // Initiate an empty array of resources
-        $playload = [];
-
-        // Fill in the array by the found robots
-        /** @var \AppBundle\Entity\Robot $robot */
-        foreach ($robots as $robot) {
-            $playload[$robot->getId()] = [
-                'name'      => $robot->getName(),
-                'status'    => $robot->getStatus(),
-                'year'      => $robot->getYear(),
-                'uri'       => $this->generateUrl('api_robots_show', array('robot' => $robot->getId())),
-                'type'      => [
-                    'id'    => $robot->getType()->getId(),
-                    'name'  => $robot->getType()->getName(),
-                ]
             ];
-        }
-
-
-        if (!empty($playload)) {
-            // Success. Found some robots.
-            return new JsonResponse(
-                [
-                    'success' => 1,
-                    'message' => 'Found some robots.',
-                    $playload
-                ], 200
-            );
-
+           $code = 500;
         } else {
-            // Failure. Did not find any robots.
-            return new JsonResponse(
-                [
-                    'success' => 0,
-                    'message' => 'Did not find any robots.',
-                    $playload
-                ], 200
-            );
+            // Initiate an empty array of resources
+            $playload = [];
+
+            // Fill in the array by the found robots
+            /** @var \AppBundle\Entity\Robot $robot */
+            foreach ($robots as $robot) {
+                $playload[$robot->getId()] = [
+                    'name'      => $robot->getName(),
+                    'status'    => $robot->getStatus(),
+                    'year'      => $robot->getYear(),
+                    'uri'       => $this->generateUrl('api_robots_show', array('robot' => $robot->getId())),
+                    'type'      => [
+                        'id'    => $robot->getType()->getId(),
+                        'name'  => $robot->getType()->getName(),
+                    ]
+                ];
+            }
+
+
+            if (!empty($playload)) {
+                // Success. Found some robots.
+                $response =
+                    [
+                        'success' => 1,
+                        'message' => 'Found some robots.',
+                        $playload
+                    ];
+                $code = 200;
+
+            } else {
+                // Failure. Did not find any robots.
+                $response =
+                    [
+                        'success' => 0,
+                        'message' => 'Did not find any robots.',
+                        $playload
+                    ];
+                $code = 200;
+            }
         }
+
+        return new JsonResponse($response, $code);
     }
 
     /**
@@ -216,11 +212,16 @@ class RobotController extends Controller
             ->setType($robotType)
             ->setYear($robotYear);
 
+        // Get the Validator
+        $validator = $this->get('validator');
 
-        $em->persist($robot);
-        $em->flush();
+        // Validate the Robot
+        $errors = $validator->validate($robot);
 
-        if ($robot->getId()) {
+        if ( count($errors) == 0 ) {
+            $em->persist($robot);
+            $em->flush();
+
             $response = [
                 'status'    => 1,
                 'data'      => [
@@ -238,7 +239,7 @@ class RobotController extends Controller
         } else {
             $response = [
                 'status'    => 0,
-                'message'   => 'Could not create a new robot.'
+                'message'   => 'Robot not created. There were errors in the values submitted.'
             ];
             $code = 400;
         }
@@ -247,38 +248,50 @@ class RobotController extends Controller
     }
 
     /**
-     * @Route("/{robot}", name="api_robots_edit")
-     * @Method("PUT")
+     * @Route("/{robot}", name="api_robots_edit", requirements={"robot": "\d+"})
+     * @Method("POST")
      * @param Request $request
      * @param Robot $robot
      * @return JsonResponse
      */
-    public function editAction(Request $request, Robot $robot) {
+    public function editAction(Request $request, Robot $robot=null) {
         $em = $this->getDoctrine()->getManager();
 
-        if (!empty($request->get('robot_name'))) {
-            $robotName = $request->get('robot_name');
-            $robot->setName($robotName);
+        // Check if there is no problem with the Database
+        if (null === $robot) {
+            // Failure. Return "robot not found".
+            return new JsonResponse([
+                'success' => 0,
+                'message' => 'Robot not found.'
+            ], 404);
         }
 
-        if (!empty($request->get('robot_type'))) {
-            $robotType = $em->getRepository('AppBundle:Type')->find($request->get('robot_type'));
-            $robot->setType($robotType);
+        if ($request->get('robot_name')) {
+            $robot->setName($request->get('robot_name'));
+        }
+
+        if ($request->get('robot_type')) {
+            $robot->setType($em->getRepository('AppBundle:Type')->find($request->get('robot_type')));
         }
 
         if ($request->get('robot_status')) {
-            $robotStatus = $request->get('robot_status');
-            $robot->setStatus($robotStatus);
+            $robot->setStatus($request->get('robot_status'));
         }
+
         if ($request->get('robot_year')) {
-            $robotYear = $request->get('robot_year');
-            $robot->setYear($robotYear);
+            $robot->setYear($request->get('robot_year'));
         }
 
-        $em->persist($robot);
-        $em->flush();
+        // Get the Validator
+        $validator = $this->get('validator');
 
-        if ($robot->getId()) {
+        // Validate the Robot
+        $errors = $validator->validate($robot);
+
+        if (count($errors) == 0) {
+            $em->persist($robot);
+            $em->flush();
+
             $response = [
                 'status'    => 1,
                 'data'      => [
@@ -293,10 +306,11 @@ class RobotController extends Controller
                 ]
             ];
             $code = 200;
+
         } else {
             $response = [
                 'status'    => 0,
-                'message'   => 'Could not create a new robot.'
+                'message'   => 'Robot not edited. There were errors in the values submitted.'
             ];
             $code = 400;
         }
@@ -305,7 +319,7 @@ class RobotController extends Controller
     }
 
     /**
-     * @Route("/{robot}", name="api_robots_delete")
+     * @Route("/{robot}", name="api_robots_delete", requirements={"robot": "\d+"})
      * @Method("DELETE")
      * @param Robot $robot
      * @return JsonResponse
