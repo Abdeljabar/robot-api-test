@@ -1,0 +1,16 @@
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Year of manufacture</th>
+    </tr>
+{% for robot in robots %}
+    <tr>
+        <td>{{ robot.name }}</td>
+        <td>{{ robot.type.name }}</td>
+        <td>{{ robot.status }}</td>
+        <td>{{ robot.year }}</td>
+    </tr>
+{% endfor %}
+</table>

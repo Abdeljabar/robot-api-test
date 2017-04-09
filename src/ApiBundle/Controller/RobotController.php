@@ -54,16 +54,17 @@ class RobotController extends Controller
             // Fill in the array by robots found
             /** @var \AppBundle\Entity\Robot $robot */
             foreach ($robots as $robot) {
-                $data[$robot->getId()] = [
-                    'name'      => $robot->getName(),
-                    'status'    => $robot->getStatus(),
-                    'year'      => $robot->getYear(),
-                    'uri'       => $this->generateUrl('api_robots_show', array('robot' => $robot->getId())),
-                    'type'      => [
-                        'id'    => $robot->getType()->getId(),
-                        'name'  => $robot->getType()->getName(),
-                    ]
-                ];
+                $data[$robot->getId()] =
+                    [
+                        'name'      => $robot->getName(),
+                        'status'    => $robot->getStatus(),
+                        'year'      => $robot->getYear(),
+                        'uri'       => $this->generateUrl('api_robots_show', array('robot' => $robot->getId())),
+                        'type'      => [
+                            'id'    => $robot->getType()->getId(),
+                            'name'  => $robot->getType()->getName(),
+                        ]
+                    ];
             }
 
             if (!empty($data)) {
@@ -72,7 +73,7 @@ class RobotController extends Controller
                     [
                         'success' => 1,
                         'message' => 'Found some robots.',
-                        $data
+                        'data'=>$data
                     ];
                 $code = 200;
 
@@ -81,7 +82,6 @@ class RobotController extends Controller
                 $response = [
                     'success' => 0,
                     'message' => 'Did not find any robots.',
-                    $data
                 ];
                 $code = 200;
             }
